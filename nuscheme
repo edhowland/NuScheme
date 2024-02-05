@@ -1,0 +1,15 @@
+#!/usr/bin/env nu
+
+
+
+source t-scheme.nu
+
+
+# NuScheme. Simple implementation of Scheme in the Nushell.
+# When invoked, starts up a REPL where you can enter Scheme expressions.
+def main [] {
+  print "Nuscheme. Enter atoms or S-Expressions. Enter (exit) to exit"
+
+  scm-repl
+  print $"...Bye"
+}

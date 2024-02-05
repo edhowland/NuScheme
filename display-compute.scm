@@ -1,0 +1,5 @@
+(define d-c (lambda (n)
+  (displayln (quote (computing n + 10)))
+  (+ n 10)
+)
+)
