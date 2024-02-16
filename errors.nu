@@ -26,8 +26,8 @@ def not-impl-error [proc_name: string] {
 
 
 # Throws a Type error with expected type and actual type.
-def type-error [e: string, a: string] {
-  error make {msg: $"Type error: Expected: ($e), got: ($a)" }
+def type-error [e: string, a: string, from: string = 'unknown'] {
+  error make {msg: $"Type error: Expected: ($e), got: ($a) from: ($from)" }
 }
 
 

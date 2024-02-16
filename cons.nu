@@ -17,11 +17,14 @@ def null? [x] {
 
 # Is this a cons cell
 def cons? [x] {
+  try {
+  #print -e $"in cons? type of x is ($x | typeof)"
   if (($x | typeof) == 'closure') and (do $x {|_| true }) {
     true
   } else {
     false
   }
+  } catch { false }
 }
  
 
@@ -40,14 +43,16 @@ def list? [x] {
     
 # List accessors
 def car [c: closure] {
-  if not (cons?  $c) { type-error 'cons' ($c | typeof) }
+  if not (cons?  $c) { type-error 'cons' ($c | typeof) 'car' }
 
   do $c {|a, _| $a }
 }
 
 
+# Returns the 'd' register of the cons cell
+# Input must be a closure and obey cons?
 def cdr [c: closure] {
-  if not (cons?  $c) { type-error 'cons' ($c | typeof) }
+  if not (cons?  $c) { type-error 'cons' ($c | typeof) 'cdr' }
 
   do $c {|_, d| $d }
   }
@@ -100,7 +105,7 @@ alias scm-fourth = cadddr
 
 # Return length of linked list created of cons cells
 def len [l] {
-  if not (list? $l) { type-error 'list' ($l | typeof) }
+  if not (list? $l) { type-error 'list' ($l | typeof) 'len' }
   if ($l | is-empty) {
     0
   } else {

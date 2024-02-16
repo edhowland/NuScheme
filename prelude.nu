@@ -26,7 +26,8 @@ define-builtin 'length' {|l| $l.0 | length }
 define-builtin 'cons' {|l| cons $l.0 $l.1 }
 define-builtin 'car' {|l| car $l.0 }
 define-builtin 'cdr' {|l| cdr $l.0 }
-define-builtin 'cons?' {|l| cons? $l.0 }
+define-builtin 'cons?' {|l| ($l.0 | typeof) == 'list' }
+#define-builtin 'pair?' {|l| (($l.0 | typeof) == 'list') and (($l.0 | length) == 2) }
 
 
 # Logical operators

@@ -40,7 +40,9 @@ def sexp [nuxp: any] {
 
 def sexp-to-list [acc=[]] -> list {
   let c = $in
-  if (null? $c) {
+  if not (cons? $c) {
+  $acc | append $c
+  } else if (null? $c) {
     $acc
   } else {
     cdr $c | sexp-to-list ($acc | append [(car $c | from sexp)])
@@ -51,8 +53,8 @@ def sexp-to-list [acc=[]] -> list {
 # a properly (possibly nested) Nu list
 def "from sexp" [] -> any {
   let data = $in
-
-  if (not ($data | typeof) == 'closure') {
+  #print -e $"in from sexp: data is ($data | typeof)"
+  if not (cons? $data) {
   $data
   } else {
     $data | sexp-to-list
