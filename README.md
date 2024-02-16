@@ -1,18 +1,37 @@
-# Scheme in Nu
+#NuScheme
 
 ## Abstract
 
 Attempt to get the basics of the Scheme programming language in Nu.
 
-
 ## Getting started
 
+### Clone this repository
+
+```sh
+git clone https://github.com/edhowland/NuScheme.git
+cd NuScheme
+```
+
+
+
+
+
+### Starting the Read-Eval-Print Loop or REPL
+
+To start the simple REPL, run the Nu script: ./nuscheme
 
 ```sh
 ./nuscheme
->> (define id (lambda (i) i))
+Nuscheme. Enter atoms or S-Expressions. Enter (exit) to exit
+',>> (define id (lambda (i) i))
 >> (id 9)
 9
+>> (exit)
+... Bye
+$
+
+```
 ```
 
 You can also start the whole process within Nu REPL itself.
@@ -71,47 +90,6 @@ Allowed data types for NuScheme and their Scheme literal examples
 
 Note on strings These bare strings are symbols in the Scheme universe.
 Actual strings: "hello", "World!" will eventually be supported.
-At the present time, there is not a way to specify a synbol type in Nu or distinguish between types of strings
-in Nu code.
-A thought would be to represent double quoted strings as a record type internally
-like so
-
-```nu
-{type: String, value: "foo bar"}
-```
-
-This has affinity with the lexer and no real changes need to be made there.
-
-
-
-### Running sample parses
-
-```nu
-source t-parse.nu
-
-'#f' | scm-parse
-false
-
-'321' | scm-parse
-321
-
-'foo-bar' | scm-parse
-foo-bar
-
-# Parse some lists
-'(strange new worlds)' | scm-parse
-0 strange
-1 new
-2 worlds
-
-# returned a simple Nu list type
-
-# nested lists
-'(55 (44 (33 (22 11)))' | scm-parse
-
- 0               55 
- 1   [list 2 items] 
-```
 
 
 ## Inner workings
@@ -235,9 +213,3 @@ And some list/cons procedures
 - cons?
 - length
 
-
-### Not yet implemented
-
-- load (read Scheme  code from a file
-- save : Given a user-defined procedure, save it as (source? or internal format)
-  * Probably uses NuON or JSON file formats

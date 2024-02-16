@@ -45,6 +45,21 @@ The body of the lambda must be an implied begin form.
 
 
 
+
+## Notes on strings both bare and their dqoted strings
+At the present time, there is not a way to specify a synbol type in Nu or distinguish between types of strings
+in Nu code.
+A thought would be to represent double quoted strings as a record type internally
+like so
+
+```nu
+{type: String, value: "foo bar"}
+```
+
+This has affinity with the lexer and no real changes need to be made there.
+
+
+
 ##### The following has been replaced by from sexp and its helper: sexp-to-list
 
 

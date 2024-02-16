@@ -16,6 +16,7 @@ def is-atom [] {
 }
 
 
+# Returns true if the parameter is a string, aka a symbol
 def symbol? [k: any] {
   ($k | typeof) == 'string'
 }

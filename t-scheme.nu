@@ -11,6 +11,7 @@ source eval.nu
 source print.nu
 source repl.nu
 source variables.nu
+source load.nu
+
 source prelude.nu
 
-source load.nu
