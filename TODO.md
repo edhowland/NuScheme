@@ -22,6 +22,11 @@ Will it be worth it in the long run?
 I can also implement GC. Have to think about this.
 
 
+##### Current commit is a start on a store in store.nu, with  cons, car and cdr and pair?
+
+But needs to be re-worked/refactored so set-car! and set-cdr! actually work
+
+
 
 Below are old from old main branch:
 - ,? Fix: built in proc: cons?
