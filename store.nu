@@ -32,7 +32,7 @@ def --env cons [a: any, d: any] {
   $env.cars = ($env.cars | update $env.cell_free $a)
   $env.cdrs = ($env.cdrs | update $env.cell_free $d)
   $env.cell_free += 1
-  {type: cons, a: ($env.cars | get ($env.cell_free - 1)), d: ($env.cdrs | get ($env.cell_free - 1)), ptr: ($env.cell_free - 1)}
+  {type: cons, ptr: ($env.cell_free - 1)}
 }
 
 
@@ -41,7 +41,7 @@ def --env cons [a: any, d: any] {
 #  get the a register from the cons cell
 def car [c: record] -> any {
   match $c {
-  {type: cons, a: $a, d: _} => $a,
+  {type: cons,ptr: $ptr } => { $env.cars | get $ptr },
     _ => { type-error cons ($c | typeof) 'car' }
   }
 }
@@ -52,7 +52,7 @@ def car [c: record] -> any {
 #  get the d register from the cons cell
 def cdr [c: record] -> any {
   match $c {
-  {type: cons, a: _, d: $d} => $d,
+  {type: cons, ptr: $ptr} => { $env.cdrs | get $ptr },
     _ => { type-error cons ($c | typeof) 'car' }
   }
 }
@@ -66,7 +66,7 @@ def cdr [c: record] -> any {
 def pair? [c: any] -> bool {
   try {
   match $c {
-    {type: cons, a: _, d: _} => true,
+    {type: cons,ptr: _ } => true,
     _ => false
   }
   } catch { false }
@@ -100,30 +100,25 @@ def null? [o: any] -> bool {
 # Returns the pointer register of the cons cell
 def cons-ptr [c: any] -> int {
   match $c {
-    {type: cons, a: _, d: _, ptr: $ptr} => $ptr,
+    {type: cons, ptr: $ptr} => $ptr,
     _ => { type-error cons ($c | typeof) 'cons-ptr' }
   }
 }
 
 
 # Set the value ofthe a register of a cons cell
-def --env set-car! [c: any, v: any] -> record {
+def --env set-car! [c: any, v: any] -> nothing {
   if not (pair? $c) { type-error 'cons' ($c | typeof) 'set-car!' }
   $env.cars = ($env.cars  | update (cons-ptr $c) $v)
-
-  {type: cons, a: ($env.cars | get (cons-ptr $c)), d: ($env.cdrs | get (cons-ptr $c)), ptr: (cons-ptr $c)}
 }
 
 
 
 
-
 # Set the value ofthe d register of a cons cell
-def --env set-cdr! [c: any, v: any] -> record {
+def --env set-cdr! [c: any, v: any] -> nothing {
   if not (pair? $c) { type-error 'cons' ($c | typeof) 'set-car!' }
   $env.cdrs = ($env.cdrs  | update (cons-ptr $c) $v)
-
-  {type: cons, a: ($env.cars | get (cons-ptr $c)), d: ($env.cdrs | get (cons-ptr $c)), ptr: (cons-ptr $c)}
 }
 
 
