@@ -25,7 +25,10 @@ $env.cell_free = 0
 # Is this how?
 # Not liking the cell path stuff
 
+# Constructs a new cons pair.
+# Will throw error if $env.cell_max is reached or exceeded
 def --env cons [a: any, d: any] {
+  if ($env.cell_free >= $env.cell_max) { error make {msg: 'out of memory in cons'} }
   $env.cars = ($env.cars | update $env.cell_free $a)
   $env.cdrs = ($env.cdrs | update $env.cell_free $d)
   $env.cell_free += 1
