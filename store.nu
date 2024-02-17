@@ -32,7 +32,7 @@ def --env cons [a: any, d: any] {
   $env.cars = ($env.cars | update $env.cell_free $a)
   $env.cdrs = ($env.cdrs | update $env.cell_free $d)
   $env.cell_free += 1
-  {type: cons, a: ($env.cars | get ($env.cell_free - 1)), d: ($env.cdrs | get ($env.cell_free - 1))}
+  {type: cons, a: ($env.cars | get ($env.cell_free - 1)), d: ($env.cdrs | get ($env.cell_free - 1)), ptr: ($env.cell_free - 1)}
 }
 
 
@@ -56,5 +56,75 @@ def cdr [c: record] -> any {
     _ => { type-error cons ($c | typeof) 'car' }
   }
 }
+
+
+
+
+# This is the REAL cons predicate, not cons?
+
+# Return true if parameter is an actual cons pair.
+def pair? [c: any] -> bool {
+  try {
+  match $c {
+    {type: cons, a: _, d: _} => true,
+    _ => false
+  }
+  } catch { false }
+}
+
+
+# Mainly for debugging
+
+# Return a new cons list from parameters to this function
+def scm-list [...args] -> record {
+  $args | reverse |  reduce -f null {|it, acc| cons $it $acc }
+}
+
+
+
+
+# how to check for the end of the list
+# One way is to see if it is null
+# another way is to check if it is empty
+
+# Returns true if the object passed as the arg is truly null
+def null? [o: any] -> bool {
+  $o | is-empty
+}
+
+
+## Mutation. In the tradition of SICP, these are at the end!
+
+# For debugging
+
+# Returns the pointer register of the cons cell
+def cons-ptr [c: any] -> int {
+  match $c {
+    {type: cons, a: _, d: _, ptr: $ptr} => $ptr,
+    _ => { type-error cons ($c | typeof) 'cons-ptr' }
+  }
+}
+
+
+# Set the value ofthe a register of a cons cell
+def --env set-car! [c: any, v: any] -> record {
+  if not (pair? $c) { type-error 'cons' ($c | typeof) 'set-car!' }
+  $env.cars = ($env.cars  | update (cons-ptr $c) $v)
+
+  {type: cons, a: ($env.cars | get (cons-ptr $c)), d: ($env.cdrs | get (cons-ptr $c)), ptr: (cons-ptr $c)}
+}
+
+
+
+
+
+# Set the value ofthe d register of a cons cell
+def --env set-cdr! [c: any, v: any] -> record {
+  if not (pair? $c) { type-error 'cons' ($c | typeof) 'set-car!' }
+  $env.cdrs = ($env.cdrs  | update (cons-ptr $c) $v)
+
+  {type: cons, a: ($env.cars | get (cons-ptr $c)), d: ($env.cdrs | get (cons-ptr $c)), ptr: (cons-ptr $c)}
+}
+
 
 
