@@ -76,8 +76,14 @@ def pair? [c: any] -> bool {
 # Mainly for debugging
 
 # Return a new cons list from parameters to this function
-def scm-list [...args] -> record {
-  $args | reverse |  reduce -f null {|it, acc| cons $it $acc }
+# Iterates over arg list and converts it to a cons list
+def --env scm-list [...args] {
+  mut l = null
+
+  for i in ($args | reverse) {
+  $l = (cons $i $l)
+  }
+  $l
 }
 
 
@@ -96,6 +102,16 @@ def null? [o: any] -> bool {
 ## Mutation. In the tradition of SICP, these are at the end!
 
 # For debugging
+
+# Returns the current free pointer
+def _free [] { $env.cell_free }
+
+
+# Returns the current highest used cell ptr
+def _high-water [] {
+  $env.cell_free - 1
+}
+
 
 # Returns the pointer register of the cons cell
 def cons-ptr [c: any] -> int {
@@ -123,3 +139,14 @@ def --env set-cdr! [c: any, v: any] -> nothing {
 
 
 
+
+
+## Debugging again. Print the list
+def print-list [l] {
+  if (null? $l) {
+    null
+  } else {
+    print (car $l)
+    print-list (cdr $l)
+  }
+}
