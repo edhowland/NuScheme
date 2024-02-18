@@ -122,6 +122,17 @@ def cons-ptr [c: any] -> int {
 }
 
 
+# low level internal
+def --env _set-car! [ptr: int, v: any] {
+  $env.cars = ($env.cars | update $ptr $v)
+}
+
+def --env _set-cdr! [ptr: int, v: any] {
+  $env.cdrs = ($env.cdrs | update $ptr $v)
+}
+
+
+
 # Set the value ofthe a register of a cons cell
 def --env set-car! [c: any, v: any] -> nothing {
   if not (pair? $c) { type-error 'cons' ($c | typeof) 'set-car!' }
