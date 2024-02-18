@@ -9,7 +9,7 @@ source errors.nu
 
 
 # Allocates a cars or cdrs list
-def --env allocate [n: int=10] {
+def --env allocate [n: int=25] {
   $env.cell_max = $n
   1..($n) | each {|it| '_' }
 }
@@ -150,3 +150,53 @@ def print-list [l] {
     print-list (cdr $l)
   }
 }
+
+
+
+
+def caar [l] {
+  car (car $l)
+}
+
+
+def cadr [l] {
+  car (cdr $l)
+}
+
+def cdar [l] {
+  cdr (car $l)
+}
+
+
+
+def cddr [l] {
+  cdr (cdr $l)
+}
+
+
+def caddr [l] {
+  car (cdr (cdr $l))
+}
+
+def cdddr [l] {
+  cdr (cdr (cdr $l))
+}
+
+
+def cadddr [l] {
+  car (cdddr $l)
+}
+
+
+alias scm-first = car
+
+alias scm-rest = cdr
+alias scm-second = cadr
+alias scm-third = caddr
+alias scm-fourth = cadddr
+
+# Gets the 5th element of the cons list
+def scm-fifth [l] { car (cdr (cdddr $l)) }
+
+# Gets the 6th element of a cons list
+def scm-sixth [l] { car (cdr (cdr (cdddr $l))) }
