@@ -53,3 +53,30 @@ def _cons [a: any, d?: any]: record -> record {
     _ => { type-error store ($data | typeof) '_cons' }
   }
 }
+
+
+# These take a cons cell on input and a mandatory store as the first parm
+
+# Given a cons cell on input, retrieve the a register from the store
+def _car [st: record] -> any {
+  let c = $in
+
+  match $c {
+    {type: cons, ptr: $row} => { $st.store | get-cell $row 'cars' },
+    _ => { type-error cons ($c | typeof) '_car' }
+  }
+}
+
+
+
+# Given a cons cell on input, retrieve the d register from the store
+def _cdr [st: record] -> any {
+  let c = $in
+
+  match $c {
+    {type: cons, ptr: $row} => { $st.store | get-cell $row 'cdrs' },
+    _ => { type-error cons ($c | typeof) '_cdr' }
+  }
+}
+
+
