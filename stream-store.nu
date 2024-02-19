@@ -80,3 +80,13 @@ def _cdr [st: record] -> any {
 }
 
 
+
+
+# mostly for testing, Scheme will do this differently
+
+# Given a bunch of args, return a new store with linked cons cells
+def _list [...args] {
+  let store = $in
+
+  $args | reverse | reduce -f ($store | _cons 'xxx' null) {|ag, acc| $acc | _cons $ag }
+}
