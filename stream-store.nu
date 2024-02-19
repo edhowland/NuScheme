@@ -30,20 +30,26 @@ def "store make" [store: table, free: int, max: int, cons?: record] -> record {
 
 # the seed
 let empty_store = [[cars cdrs]; [_ _]]
-mut store = (store make $empty_store 0 0)
+mut store = (store make $empty_store 1 0) # free must point past the largest item in the store
 
 # _cons here is the streaming version of cons taking a store as input
 # and returning a new store with the cons cell upserted into the record
 # Note, the new store is increased by an appended row
 
 
+# add a cons to the store
+def add_cons [a: any, d: any] { append {cars: $a, cdrs: $d} }
+
+
+
 # With a store as input, constructs a nell pair in the store and returns
 # a newly modified store with a new field: the new cons cell.
-def _cons [a: any, d: any]: record -> record {
+def _cons [a: any, d?: any]: record -> record {
   let data = $in
 
   match $data {
-  {type: store, store: $store, free: $free, max: $max} => { store make $store ($free + 1) $max {type: cons, ptr: $free} },
+    {type: store, store: $store, free: $free, max: $max, cons: $cons} => {store make ($store | add_cons $a $cons) ($free + 1) $max {type: cons, ptr: $free} },
+  {type: store, store: $store, free: $free, max: $max} => { store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} },
     _ => { type-error store ($data | typeof) '_cons' }
   }
 }
