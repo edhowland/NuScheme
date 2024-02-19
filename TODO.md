@@ -1,6 +1,10 @@
 # Todo list
 
 
+##### Note: Re: into cell-path command
+
+This command could be useful to change the environment into a growable nested record
+of more and more inner scopes. The bindings iwhould just be constructed cell-paths.
 
 
 
