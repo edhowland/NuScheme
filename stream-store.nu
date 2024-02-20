@@ -7,8 +7,8 @@ def edit-row [row: int, val: record] {
 }
 
 # Edits a single cell in a table
-def edit-cell [r: int, c: string, v: any]: table -> table {
-  update $r {|row| $row | update $c $v }
+def edit-cell [row: int, col: string, val: any]: table -> table {
+  update $row {|rec| $rec | update $col $val }
 }
 
 # Gets the value of a single cell with input parameters row and col.
@@ -55,6 +55,16 @@ def _cons [a: any, d?: any]: record -> record {
 }
 
 
+
+# checks that the supplied argument is indeed a cons cell record,  throws error if not.
+def must-cons [c: any, src: string='must-cons'] {
+  match $c {
+    {type: cons, ptr: _} => true,
+    _ => { type-error 'cons' ($c | typeof) $src }
+  }
+}
+
+
 # These take a cons cell on input and a mandatory store as the first parm
 
 # Given a cons cell on input, retrieve the a register from the store
@@ -89,4 +99,39 @@ def _list [...args] {
   let store = $in
 
   $args | reverse | reduce -f ($store | _cons 'xxx' null) {|ag, acc| $acc | _cons $ag }
+}
+
+
+## Danger lurks below.
+
+# Overwrite the a register in the cons cell pointed to by the first parm which must
+# be of type cons with the value supplied.
+# Takes a store as input and returns a modified store as output.
+def _set-car! [c: record, v: any] {
+  let store = $in
+  must-cons $c # check we got a real cons cell
+
+  match $store {
+    {type: store, store: $st, free: $free, max: $max, cons: $cons} => {
+    store make ($store.store | edit-cell $c.ptr 'cars' $v) $free $max $cons },
+    _ => { type-error 'store' ($store | typeof) '_set-car!' }
+  }
+}
+
+
+# This is the dangerous one. If the cons cell is part of a linked list,
+# then overriding its cdr portion will break the linkage up to that point.
+# However, it might be useful if needing to attach it to another list permanently.
+
+# Overwrites the d register of the cons cell with the value supplied.
+# Takes a store as input and returns a modified store as output.
+def _set-cdr! [c: record, v: any] {
+    let store = $in
+  must-cons $c
+
+  match $store {
+    {type: store, store: $st, free: $free, max: $max, cons: $cons} => {
+    store make ($store.store | edit-cell $c.ptr 'cdrs' $v) $free $max $cons },
+    _ => { type-error 'store' ($store | typeof) '_set-cdr!' }
+  }
 }
