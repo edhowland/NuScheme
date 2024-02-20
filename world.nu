@@ -17,6 +17,17 @@
 
 # make a new world from a store and a environment pointing to that store
 def "world make" [] {
-  let tmp = {ttype: world, store: (store make (_mk-store-tbl) 1 0)}
+  let tmp = {type: world, store: (store make (_mk-store-tbl) 1 0)}
   $tmp | insert 'nv' ($tmp.store | nv make) | insert 'result' null
+}
+
+
+# some predicates
+
+# Returns true if item is a actual world object
+def _world? [o: any] -> bool {
+  match $o {
+    {type: world, store: _, nv: _, result: _} => true,
+    _ => false
+  }
 }
