@@ -48,7 +48,14 @@ def _cons [a: any, d?: any]: record -> record {
   let data = $in
 
   match $data {
-    {type: store, store: $store, free: $free, max: $max, cons: $cons} => {store make ($store | add_cons $a $cons) ($free + 1) $max {type: cons, ptr: $free} },
+    {type: store, store: $store, free: $free, max: $max, cons: $cons} => {
+      if ($d == null) {
+        store make ($store | add_cons $a $cons) ($free + 1) $max {type: cons, ptr: $free} 
+      } else {
+        # must want to override the d register because it is not missing
+        store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} 
+      }
+    },
   {type: store, store: $store, free: $free, max: $max} => { store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} },
     _ => { type-error store ($data | typeof) '_cons' }
   }
@@ -98,7 +105,7 @@ def _cdr [st: record] -> any {
 def _list [...args] {
   let store = $in
 
-  $args | reverse | reduce -f ($store | _cons 'xxx' null) {|ag, acc| $acc | _cons $ag }
+  $args | reverse | reduce -f ($store | _cons null null) {|ag, acc| $acc | _cons $ag }
 }
 
 
@@ -135,3 +142,46 @@ def _set-cdr! [c: record, v: any] {
     _ => { type-error 'store' ($store | typeof) '_set-cdr!' }
   }
 }
+
+
+# friends of _car and _cdr
+# their should be 30 of these
+# [incomplete at the moment. TODO: remove this line when number of 'grep def ' | wc -l' == 30
+
+
+# Note some of these are in reverse order of the a.a.d.d s in the name
+
+# get the second element of the list
+def _cadr [st: record] {  _cdr $st | _car $st}
+
+
+
+def _caddr [st: record] { _cdr $st |  _cdr $st | _car $st}
+def _cadddr [st: record] { _cdr $st | _cdr $st |  _cdr $st | _car $st}
+
+
+
+
+# The mostly friends of _car
+
+# The _car of the _car
+def _caar [$st] { _car $st | _car $st }
+def _caaar [$st] { _car $st | _car $st | _car $st }
+def _caaaar [$st] { _car $st | _car $st | _car $st | _car $st }
+
+
+# the mostly _cdr friends
+
+def _cddr [st] { _cdr $st | _cdr $st }
+def _cdddr [st] { _cdr $st | _cdr $st | _cdr $st }
+def _cddddr [st] { _cdr $st | _cdr $st | _cdr $st | _cdr $st }
+
+
+
+
+
+# Some weird chums of _cdr and _car
+
+# This one used in environment probably
+
+def _cdar [st: record] { _car $st | _cdr $st }
