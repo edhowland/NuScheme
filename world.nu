@@ -13,3 +13,10 @@
 # a series of pipes and then returns the new modified world.
 # ```nu
 # world_updater {|w| $w | keybd-input | read | eval | scm-print }
+
+
+# make a new world from a store and a environment pointing to that store
+def "world make" [] {
+  let tmp = {ttype: world, store: (store make (_mk-store-tbl) 1 0)}
+  $tmp | insert 'nv' ($tmp.store | nv make) | insert 'result' null
+}

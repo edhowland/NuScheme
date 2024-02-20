@@ -29,8 +29,8 @@ def "store make" [store: table, free: int, max: int, cons?: record] -> record {
 }
 
 # the seed
-let empty_store = [[cars cdrs]; [_ _]]
-mut store = (store make $empty_store 1 0) # free must point past the largest item in the store
+def _mk-store-tbl [] { [[cars cdrs]; [_ _]] }
+mut store = (store make (_mk-store-tbl) 1 0) # free must point past the largest item in the store
 
 # _cons here is the streaming version of cons taking a store as input
 # and returning a new store with the cons cell upserted into the record
@@ -185,3 +185,20 @@ def _cddddr [st] { _cdr $st | _cdr $st | _cdr $st | _cdr $st }
 # This one used in environment probably
 
 def _cdar [st: record] { _car $st | _cdr $st }
+
+
+# Some predicates
+
+# Is the object a valid pair. Boolean version of must-cons
+def _pair? [c: any] -> bool {
+    match $c {
+    {type: cons, ptr: _} => true,
+    _ => false
+  }
+}
+
+
+
+# Returns true if object is atomic, E.g. not a _pair?
+def _atom? [o: any] -> bool { not (_pair? $o) }
+
