@@ -36,10 +36,20 @@ def _world? [o: any] -> bool {
 
 # Given a world on input, update the store and the environment in one fell swoop with the closure returning
 # a new store. This returns a new world
-def "world nv-update" [cl: closure] -> record {
+def "world nv-updater" [cl: closure] -> record {
   mut world = $in
 
   $world.store = (do $cl $world.store $world.nv)
   $world.nv = $world.store.cons
+  $world
+}
+
+# Given a world on input, passes the store field to a closure which must return a new store
+# The new store in the wrold being returned will have its .cons field in the  result field of world
+def "world store-updater" [cl: closure] -> record {
+  mut world = $in
+  $world.store = (do $cl $world.store)
+  $world.result = $world.store.cons
+
   $world
 }
