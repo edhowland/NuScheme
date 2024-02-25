@@ -1,5 +1,11 @@
 # World passing eval
 
+# Is the atom a symbol?
+def _symbol? [sexp] -> bool {
+  ($sexp | typeof) == 'string'
+}
+
+
 # A world (in world.nu) consists of a store and an environment
 
 
@@ -12,7 +18,11 @@ def _eval [sexp: any] {
   match $new_world {
     {type: world, store: $store, nv: $nv, result: _} => { true 
   if (_atom? $sexp) {
-    $new_world = ($new_world | upsert 'result' $sexp)
+    if (_symbol? $sexp) {
+        $new_world.result = (_lookup $sexp $new_world.nv $new_world.store)
+    } else {
+      $new_world = ($new_world | upsert 'result' $sexp)
+    }
   } else {
       let candproc = ($sexp | _car $store)
 

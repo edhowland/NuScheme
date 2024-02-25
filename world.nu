@@ -17,8 +17,10 @@
 
 # make a new world from a store and a environment pointing to that store
 def "world make" [] {
-  let tmp = {type: world, store: (store make (_mk-store-tbl) 1 0)}
-  $tmp | insert 'nv' ($tmp.store | nv make) | insert 'result' null
+  mut tmp = {type: world, store: (store make (_mk-store-tbl) 1 0)}
+  $tmp.store = ($tmp.store | nv make)
+$tmp.nv = $tmp.store.cons
+  $tmp |  | insert 'result' null
 }
 
 
@@ -30,4 +32,14 @@ def _world? [o: any] -> bool {
     {type: world, store: _, nv: _, result: _} => true,
     _ => false
   }
+}
+
+# Given a world on input, update the store and the environment in one fell swoop with the closure returning
+# a new store. This returns a new world
+def "world nv-update" [cl: closure] -> record {
+  mut world = $in
+
+  $world.store = (do $cl $world.store $world.nv)
+  $world.nv = $world.store.cons
+  $world
 }
