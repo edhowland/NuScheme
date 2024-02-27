@@ -13,8 +13,8 @@ def --env global-eval [sexp: any] {
 
 
 
-# Creates a list in the global world store
+ #Creates a list in the global world store
 def --env global-list [...args] {
-  $env.world = ($env.world | world store-updater {|st| $st | _list $args.0 $args.1 $args.2 })
+  $env.world = ($env.world | world store-updater {|st| $st | _rlist $args })
   $env.world.result
 }

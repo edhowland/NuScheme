@@ -44,22 +44,34 @@ def add_cons [a: any, d: any] { append {cars: $a, cdrs: $d} }
 
 # With a store as input, constructs a nell pair in the store and returns
 # a newly modified store with a new field: the new cons cell.
-def _cons [a: any, d?: any]: record -> record {
-  let data = $in
-
-  match $data {
-    {type: store, store: $store, free: $free, max: $max, cons: $cons} => {
-      if ($d == null) {
-        store make ($store | add_cons $a $cons) ($free + 1) $max {type: cons, ptr: $free} 
-      } else {
-        # must want to override the d register because it is not missing
-        store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} 
-      }
-    },
-  {type: store, store: $store, free: $free, max: $max} => { store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} },
-    _ => { type-error store ($data | typeof) '_cons' }
-  }
+  # If the  d register is null then theprevious cons cell in the existing store
+# is used instead. This allows for piping many calls to _cons together to make
+# a list terminating in null.
+def _cons [a: any, d?: any] {
+  let s = $in
+  let store = $s.store
+  let f = $s.free
+  let dr = if ($d == null) { $s.cons } else { $d }
+$s | update store ($store | add_cons $a $dr) | upsert cons {type: cons, ptr: $f} | update free ($f + 1)
 }
+
+
+#def _cons [a: any, d?: any]: record -> record {
+#  let data = $in
+#
+#  match $data {
+#    {type: store, store: $store, free: $free, max: $max, cons: $cons} => {
+#      if ($d == null) {
+#        store make ($store | add_cons $a $cons) ($free + 1) $max {type: cons, ptr: $free} 
+#      } else {
+#        # must want to override the d register because it is not missing
+#        store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} 
+#      }
+#    },
+#  {type: store, store: $store, free: $free, max: $max} => { store make ($store | add_cons $a $d) ($free + 1) $max {type: cons, ptr: $free} },
+#    _ => { type-error store ($data | typeof) '_cons' }
+#  }
+#}
 
 
 
@@ -108,6 +120,13 @@ def _list [...args] {
   $args | reverse | reduce -f ($store | _cons null null) {|ag, acc| $acc | _cons $ag }
 }
 
+
+# Given a  store on input and a actual list for the parameter, return new store
+# with cons field containing the pointer to head of the list
+def _rlist [l: list] {
+  let store = $in
+  $l | reverse | reduce -f ($store | _cons null null) {|ag, acc| $acc | _cons $ag }
+}
 
 ## Danger lurks below.
 
@@ -201,4 +220,5 @@ def _pair? [c: any] -> bool {
 
 # Returns true if object is atomic, E.g. not a _pair?
 def _atom? [o: any] -> bool { not (_pair? $o) }
+
 

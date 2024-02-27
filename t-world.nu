@@ -7,3 +7,7 @@ source world.nu
 
 
 source eval-world.nu
+
+
+source builtins-world.nu
+source global.nu
