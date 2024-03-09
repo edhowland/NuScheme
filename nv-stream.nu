@@ -31,8 +31,8 @@ def _define [key: string, val: any, nv: record] {
 }
 
 
-# Should this throw Nu type errors?
-# Lookups a binding in the environment takes the symbol the environment and the store and returns the value if fount
+# Lookups a binding in the environment
+# takes the symbol the environment and the store and returns the value if fount
 def _lookup [key: string, nv: record, st: record] -> any {
   if ($nv | _cdr  $st) == null {
     runtime-error 'reached past the environment or not an environment was passed'

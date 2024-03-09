@@ -4,7 +4,7 @@
 
 
 # Application of procedures to S-Expression(s) arguments
-use assert
+use std assert
 
 
 # Evaluate a begin form.

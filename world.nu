@@ -53,3 +53,15 @@ def "world store-updater" [cl: closure] -> record {
 
   $world
 }
+
+
+# Given a world on input, runs the query within the passed in closure.
+# The arguments to the closure are the store and the environment.  and the previous result, if any
+# The result of the closure. is returned.
+#  This function is meant for query operations only.
+def "world run" [cl: closure] -> any {
+  let world = $in
+
+  do $cl $world.store $world.nv $world.result
+}
+
