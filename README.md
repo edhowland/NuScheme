@@ -375,3 +375,23 @@ script your way to adding many functions into the environment say in a prelude.s
 or whatever.
 
 
+
+## Creating nested list structures
+
+```scheme
+(quote (1 2 3))
+; => (1 2 3)
+```
+
+To make this possible in a store passing style, we need to invert the order of
+the nesting. Innermost must first be created and then saved in a scratch buffer
+which is later retrieved by a load key function when creating the outermost
+list expression.  There are 2 functions for this:
+
+- __store! key : takes world, saves .result in $env._scratch with key
+- __load key  : Retrieves key from $env._scratch
+
+```nu
+$env.world | __world-list 1 2 3 | __store! sub | __world-list quote (__load sub) | __eval | __result
+# => <cons cell>
+```

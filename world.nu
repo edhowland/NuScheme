@@ -88,3 +88,27 @@ alias __mk-atom = upsert result
 
 # Gets the result field of a world in the stream
 alias __result = get result
+
+# scratch storage functions. can be implemented within world streams to hold 
+# result until needed later.
+# Application:  when making nested cons S-exprs
+
+
+# The scratch location
+$env._scratch = {type: scratch}
+
+# Store result in  $env._scratch with key and previous .result
+def --env __store! [key] {
+  let world = $in
+
+  $env._scratch = ($env._scratch | upsert $key $world.result)
+  $world
+}
+
+
+# Retrieve the previous key from scratch storage in $env._scratch
+# This just  returns the value so use in sub-expression 
+# like : '__list quote (__load sublist) | __eval'
+def __load [key] {
+  $env._scratch | get $key
+}
