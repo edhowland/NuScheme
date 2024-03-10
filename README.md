@@ -4,6 +4,9 @@
 
 Attempt to get the basics of the Scheme programming language in Nu.
 
+This version is: environment-passing-style-only
+Held here for archival reasons and info.
+
 ## Getting started
 
 ### Clone this repository
