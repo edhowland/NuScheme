@@ -65,3 +65,26 @@ def "world run" [cl: closure] -> any {
   do $cl $world.store $world.nv $world.result
 }
 
+
+
+# dunder methods : Things meant to insert into a World Passing Style pipeline or stream
+
+# You can inspect the __world-list with: 
+# ```nu
+# $env.world | __world-list define foo 9 | world run {|st, _, re| $re | _car $st }
+# => define
+# ```
+# or _cadr or _caddr .etc
+
+# Insert a cons list into world stream
+# Useful for making single level S-Expressions for input into __eval
+def __world-list [...args] {
+world store-updater {|st| $st | _rlist $args }
+}
+
+
+# Insert atom value into stream
+alias __mk-atom = upsert result
+
+# Gets the result field of a world in the stream
+alias __result = get result

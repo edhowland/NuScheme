@@ -331,3 +331,47 @@ global-eval $c_expr | get result
 # => 99
 ```
 
+
+
+
+## Fully World streaming dunder functions
+
+We blazingly misappropriate the term "dunder functions" from Python but we skip
+the trailing double underscores.
+
+### Not yet a REPL
+
+
+Let's try the above example in Scheme with a streaming world and our dunder functions:
+
+```nu
+$env.world | __world-list define truth true | __eval | __mk-atom truth | __eval | __result
+# => true
+```
+
+We:
+
+1. Given our starting world: $env.world
+2. set the list "(define truth #t)" with __world-list define truth true
+3. Eval that .result in __eval
+4. (Ignoring the previous result which is null
+  * Insert a new atom the symbol: truth into the stream
+5.__eval the previous .result   * which will be 'truth' symbol
+6. Get the final result
+  * Which will be lookup truth and return true
+
+
+
+
+Our previous example rewritten with streaming world
+
+```nu
+$env.world | __world-list define truth true | __eval | __world-list 'if' truth 11 22 | __eval | __result
+# => 11
+```
+
+That is not very close to a REPL, but you can
+script your way to adding many functions into the environment say in a prelude.scm
+or whatever.
+
+

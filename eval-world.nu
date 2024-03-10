@@ -39,3 +39,15 @@ def _eval [sexp: any] {
 
   $new_world
 }
+
+
+# dunder methods : Can stream both world along with its result field as the input to __eval
+
+# World stream version  of _eval. Takes world on input
+# along with previous result as the S-Expression to eval here and pass along as next result
+def __eval [] {
+  let world = $in
+  let sexp = $world.result
+  $world | _eval $sexp
+}
+
