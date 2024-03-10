@@ -307,3 +307,27 @@ global-eval $d
 global-eval fubar
 88
 ```
+
+
+#### Conditional expressions
+
+We can use the 'if' expression and combine the above learnings like this:
+
+```scheme
+(define truth #t)
+(if truth 99 88)
+; => 99
+```
+
+```nu
+let d = global-list define truth true
+# Implement it
+global-eval $d
+
+# Now check it
+let c_expr = global-list 'if' truth 99 88
+
+global-eval $c_expr | get result
+# => 99
+```
+

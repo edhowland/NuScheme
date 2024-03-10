@@ -29,7 +29,7 @@ def _eval [sexp: any] {
       match $candproc {
         'quote' => { $new_world.result = ($sexp | _cadr $new_world.store) },
         'define' => { $new_world = ($new_world | world nv-updater {|st, nv| $st | _define ($sexp | _cadr $st) ($sexp | _caddr $st) $nv }) },
-        'if' => { $new_world.result = (if ($sexp | _cadr $store) { $new_world | _eval ($sexp | _caddr $store) } else { $new_world | _eval ($sexp | _cadddr $store) }) },
+        'if' => { $new_world.result = (if ($new_world | _eval ($sexp | _cadr $store) | get result) { $new_world | _eval ($sexp | _caddr $store) } else { $new_world | _eval ($sexp | _cadddr $store) }) },
         _ => { runtime-error $"Unknown type of ($candproc) the first element of the S-Expression" }
       }
     }
