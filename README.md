@@ -273,3 +273,37 @@ Note that we can pipe these commands together to  get more complex functionality
 In this way NuScheme, at the level of the plumbing of the underlying Nushell
 language is very composible.
 
+
+
+But, we can get closer to doing stuff in the real MCE. The fn global-eval
+which implementes a World Passing MCE takes a single argument: The S-Expr to be
+evaluated within the world. This S-Expr needs to either be an atom or a cons list
+to be able to run. To this end we have the 'global-list creater:
+
+```scheme
+(quote foo)
+; => foo
+```
+
+
+```nu
+# Try to emulate the Scheme above:
+let quote = global-list quote foo
+# Now run it:
+global-eval $quote
+# => foo
+```
+
+
+
+This also works with definitions:
+
+```nu
+let d = global-list define fubar 88
+global-eval $d
+# => <cons record>
+
+# Now look it up
+global-eval fubar
+88
+```
