@@ -2,7 +2,6 @@
 
 ## Abstract
 
-
 This is the Store Passing Style (SPS) version of a MCE Scheme interpreter.
 
 Actually, it is the World passing style  MCE, as the store is embedded
@@ -10,6 +9,23 @@ inside a world container along with the environment.
 The environment is a cons cell based lookup mechanism which is
 very inefficient. because of need to test ideas regarding garbage collection.
 
+## Getting started
+
+First clone this repo, then switch to the 'sps' branch.
+
+
+Upon first arriving in this dir
+
+```bash
+. .rc
+
+# Now load Nu REPL:
+eval_test
+```
+
+All the store/environment and world streaming  functions will now be available.
+
+The created world is held in '$env.world' See below for examples of usage.
 
 ## The Store
 
@@ -394,4 +410,17 @@ list expression.  There are 2 functions for this:
 ```nu
 $env.world | __world-list 1 2 3 | __store! sub | __world-list quote (__load sub) | __eval | __result
 # => <cons cell>
+```
+
+
+
+
+#### Checking for atomicity of S-Expression
+
+We can use the Nu collect item to check for things when debuging.
+This lets us use the '_atom?' function to check for atomicity in the world stream.
+
+```nu
+$env.world | __mk-atom 14 | __eval | collect {|w| _atom? $w.result }
+# => true
 ```
