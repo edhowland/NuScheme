@@ -76,6 +76,10 @@ def "world run" [cl: closure] -> any {
 # ```
 # or _cadr or _caddr .etc
 
+
+
+# The world streaming version of _null?
+def __null? [] { get result | is-empty }
 # Insert a cons list into world stream
 # Useful for making single level S-Expressions for input into __eval
 def __world-list [...args] {
@@ -111,4 +115,20 @@ def --env __store! [key] {
 # like : '__list quote (__load sublist) | __eval'
 def __load [key] {
   $env._scratch | get $key
+}
+
+
+# dunder car and cdr functions
+
+# Gets the car of a world stream previous result and places it in result of
+# following world stream
+def __car [] {
+  collect {|w| $w | upsert result ($w.result | _car $w.store) }
+}
+
+
+
+# Gets the cdr from the world stream's previous result
+def __cdr [] {
+  collect {|w| $w | upsert result ($w.result | _cdr $w.store) }
 }
