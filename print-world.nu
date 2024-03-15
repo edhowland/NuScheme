@@ -3,15 +3,16 @@
 # Formats the result of the world stream into a string
 def __format [] {
   let world = $in
-  let sexp = $world.result
+  let sexp = $world.result # probably remove this
 
-  if (_atom? $sexp) {
-  $"($sexp)"
+  if ($world | __atom? | __result) {
+  $"($world | __result)"
   } else {
   mut o = "("
-    $o += $"($sexp | _car $world.store) "
-    $o += $"($sexp | _cadr $world.store) "
-    $o += $"($sexp | _caddr $world.store)"
+    if not ($world | __car | __null? | __result) {
+      $o += $"($world | __car | __format)"
+      $o += ($world | __cdr | __format)
+    }
   $o += ")"
     $o
   }

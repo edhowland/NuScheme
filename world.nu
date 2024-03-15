@@ -78,8 +78,21 @@ def "world run" [cl: closure] -> any {
 
 
 
-# The world streaming version of _null?
-def __null? [] { get result | is-empty }
+# Given a world on input with a .result field that might or not be null
+# returns new world with .result field set to boolean true or false depending on it
+def __null? [] {
+  let world = $in
+  $world | upsert result ($world | get result | is-empty)
+}
+
+
+# Checks if the world stream .result field is an atom
+# and if it is, places this boolean in the output .result of the new world stream
+def __atom? [] {
+  let world = $in
+  $world | upsert result (_atom? $world.result)
+}
+
 # Insert a cons list into world stream
 # Useful for making single level S-Expressions for input into __eval
 def __world-list [...args] {
@@ -131,4 +144,26 @@ def __car [] {
 # Gets the cdr from the world stream's previous result
 def __cdr [] {
   collect {|w| $w | upsert result ($w.result | _cdr $w.store) }
+}
+
+
+
+# Get the second element of the cons in the previous result of the world stream
+# and place that value in the result in the new world on output
+def __cadr [] {
+  collect {|w| $w | upsert result ($w.result | _cadr $w.store) }
+}
+
+
+# Returns a true .result if the incoming world stream .result is a list
+def __list? [] {
+  let world = $in
+
+  if ($world | __atom? | __result) {
+    $world | upsert result false
+  } else if ($world | __car | __null? | __result) {
+    $world | upsert result true
+  } else {
+    $world | __cdr | __list?
+  }
 }

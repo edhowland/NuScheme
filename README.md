@@ -27,6 +27,35 @@ All the store/environment and world streaming  functions will now be available.
 
 The created world is held in '$env.world' See below for examples of usage.
 
+
+##### Function naming strategy
+
+There are 3 or 4 naming types:
+
+- Query functions, like _null?, _atom?
+  * have a single leading underscore '_' and a trailing question mark '?'
+- deconstructors : like _car, _cdr, _cadr etc
+  * have a single leading  underscore '_'
+  * takes some item on input like a cons cell, and either just a store or a store and environment as params and returns the internal part
+  * Environment  deconstructors must also take a store param as well as the 'nv' param because 'nv' points into the store
+- Mutators : like _cons!
+  * have a single leading underscore and a trailing bang '!'
+  * generally take a store on input and return a new store on output
+- Streamers : Like __car, __eval and __world-list
+  * Have 2 leading underscores
+  * Take a world on input and return a new world on output
+  * May update the .result field on output
+  * May only work on the previous .result field on input
+
+Note: If a query streamer like '__atom?' or '__null?' will return a new
+world on output with the result field set to boolean true or false. These also
+probably work on previous .result field on input.
+
+
+Note 2: You can use '__result' at the end of  the stream to inspect the result
+field. It does not return a new store, so it can not participate in further
+functions in the pipeline.
+
 ## The Store
 
 The store is implemented as a Nu table with columns: cars and cdrs. When you call
@@ -424,3 +453,20 @@ This lets us use the '_atom?' function to check for atomicity in the world strea
 $env.world | __mk-atom 14 | __eval | collect {|w| _atom? $w.result }
 # => true
 ```
+
+#### Checking if a list is empty
+
+In the .result field of the world might be a cons cell. the car of that cell will be null
+if it is the last (or only) cons cell in a list. We can use __null? along with __car
+to get this:
+
+```nu
+$env.world | __world-list | __car | __null?
+# => world.result == true
+#
+# To check this:
+$env.world | __world-list | __car | __null? | __result
+# => true
+```
+
+
