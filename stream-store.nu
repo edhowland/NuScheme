@@ -174,8 +174,10 @@ def _set-cdr! [c: record, v: any] {
 def _cadr [st: record] {  _cdr $st | _car $st}
 
 
-
+# Get the third element of this list
 def _caddr [st: record] { _cdr $st |  _cdr $st | _car $st}
+
+# Get the fourth element of this list
 def _cadddr [st: record] { _cdr $st | _cdr $st |  _cdr $st | _car $st}
 
 
@@ -222,3 +224,9 @@ def _pair? [c: any] -> bool {
 def _atom? [o: any] -> bool { not (_pair? $o) }
 
 
+
+
+# Check if the item is a null
+def _null? [sexp] -> bool {
+  $sexp | is-empty
+}
