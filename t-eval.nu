@@ -3,7 +3,8 @@ source errors.nu
 source typeof.nu
 source t-world.nu
 source eval-world.nu
-source print-world.nu
+#source print-world.nu
+source pw.nu
 
 let World = (world make)
 
