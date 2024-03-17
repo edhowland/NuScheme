@@ -4,7 +4,7 @@ source typeof.nu
 source t-world.nu
 source eval-world.nu
 #source print-world.nu
-source pw.nu
+source print-world.nu
 
 let World = (world make)
 

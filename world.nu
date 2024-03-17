@@ -99,6 +99,9 @@ def __world-list [...args] {
 world store-updater {|st| $st | _rlist $args }
 }
 
+# Make a single nested level cons list from arguments
+alias __mk-list = __world-list
+
 
 # Insert atom value into stream
 alias __mk-atom = upsert result

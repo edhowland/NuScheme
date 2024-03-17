@@ -1,34 +1,39 @@
-# formatting and printing stuff with regard to World streams
+# formatters and printers for different kind of S-Expressions
+# Eventually, this will xform true into #t and false to #f along with other
+# Scheme related data types
 
-# for debugging this Nu panic only:
-alias __format = __result
 
-
-# formats a list in the result of a world stream and returns a string
-# is tail call optimized
-def __format-list [acc='', prefix=''] -> string {
+# Formats a cons list in the result field of world stream
+def __perf-format-list [
+    pretty: bool,  # Wraps the output in pretty parens
+    acc='',  # The accumulator that is returned after recursion hist base case
+    prefix=''
+  ] -> string {
   let world = $in
 
-    if ($world | __car | __null? | __result) {
-    $acc
+  if ($world | __car | __null? | __result) {
+      if $pretty {
+      $"\(($acc)\)"
+    } else {
+      $acc
+    }
   } else {
-    $world | __cdr | __format-list $"($acc)($prefix)($world | __car | __format)" ' '
+    $world | __cdr | __perf-format-list $pretty $"($acc)($prefix)($world | __car | __result)" ' '
   }
 }
 
 
 
-# Formats the result of the world stream into a string
-#def __format [] {
-#  let world = $in
-#  let sexp = $world.result # probably remove this
-#
-#  if ($world | __atom? | __result) {
-#  $"($world | __result)"
-#  } else if ($world | __list?) {
-#    $"\(($world | __format-list)\)"
-#  } else {
-#    error make {msg:'bad'}
-#}
-#}
 
+
+
+# formats list in incoming world stream
+# Output is a string so must occur at termination of pipeline
+def __format-list [
+    --pretty (-p), # Optionally wraps output string in balanced parens
+  ] -> string {
+  __perf-format-list $pretty
+}
+
+# pretty print the result field in the passed in worldtstring
+alias pp = __format-list --pretty
