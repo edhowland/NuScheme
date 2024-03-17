@@ -56,6 +56,10 @@ Note 2: You can use '__result' at the end of  the stream to inspect the result
 field. It does not return a new store, so it can not participate in further
 functions in the pipeline.
 
+Note: There are various alias to make life more ergonomic:
+
+- __mk-list : aliased to __world-list
+
 ## The Store
 
 The store is implemented as a Nu table with columns: cars and cdrs. When you call
@@ -394,7 +398,6 @@ $env.world | __world-list define truth true | __eval | __mk-atom truth | __eval 
 # => true
 ```
 
-We:
 
 1. Given our starting world: $env.world
 2. set the list "(define truth #t)" with __world-list define truth true
@@ -408,10 +411,10 @@ We:
 
 
 
-Our previous example rewritten with streaming world
+Our previous example rewritten with streaming world and using __mk-list alias:
 
 ```nu
-$env.world | __world-list define truth true | __eval | __world-list 'if' truth 11 22 | __eval | __result
+$env.world | __mk-list define truth true | __eval | __mk-list 'if' truth 11 22 | __eval | __result
 # => 11
 ```
 
@@ -420,6 +423,25 @@ script your way to adding many functions into the environment say in a prelude.s
 or whatever.
 
 
+
+####  Printing our result
+
+Note: Due to current issue in Nu, Nushell hard panics on some recursive calls.
+For this reason, there is no real  printer in the classic Scheme sense.
+Instead there is a pretty printer that can do a single level nested list:
+
+```nu
+$env.world | __mk-list defne foo 9 | pp
+# => "(define foo 9)"
+```
+
+Thispp is an alias to '__format-list --pretty'
+which passes the '--pretty' flag to '__format-list' which wraps the string
+in balanced parenthesis.
+
+In turn '__format-list' is a wrapper fn for: '__perf-format-list' which does the
+required recursion walk of the cons cell list. This makes it a good example
+of who to walk such cells in the streaming world abstraction.
 
 ## Creating nested list structures
 
@@ -437,8 +459,8 @@ list expression.  There are 2 functions for this:
 - __load key  : Retrieves key from $env._scratch
 
 ```nu
-$env.world | __world-list 1 2 3 | __store! sub | __world-list quote (__load sub) | __eval | __result
-# => <cons cell>
+$env.world | __mk-list 1 2 3 | __store! sub | __mk-list quote (__load sub) | __eval | pp
+# =>'(1 2 3)'
 ```
 
 
