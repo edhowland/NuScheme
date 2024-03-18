@@ -492,3 +492,31 @@ $env.world | __world-list | __car | __null? | __result
 ```
 
 
+
+
+## The stack
+
+The world record contains a stack data type called a stack which is just a list
+There are X functions that manipulate this
+
+- __push : Pushes the .result onto the stack
+- __pop | replaces the .result with the popped value joff the stack
+  * Will throw 'stack-underflow' error if stack is empty
+- __pop-cons : convenience to first pop and then rcons the top of that stack
+  * Expects .result to be some existing cons list
+
+```nu
+$env.world | __x-push 11 22 33 | __mk-list | __pop-cons | __pop-cons | __pop-cons | __rcons 'quote
+# => (quote (11 22 33))
+```
+
+
+
+The '__x-push is debug hellper to  repeatedly push its args onto the stack
+using a reduction of `$args | reduce -f $world {|it, acc| $acc | __mk-atom $it | __push }`
+
+
+
+Then we make a new  empty list, then __pop-cons the  top of the stack
+
+3 times and finally __rcons the symbol 'quote'

@@ -37,3 +37,13 @@ def __format-list [
 
 # pretty print the result field in the passed in worldtstring
 alias pp = __format-list --pretty
+
+
+# formats a dotted pair found in the  .result field of wrold stream.
+#  returns string so must terminate a pipeline.
+def __format-pair [] -> string {
+  let world = $in
+
+  $"\(($world.result | _car $world.store) . ($world.result | _cdr $world.store)\)"
+}
+

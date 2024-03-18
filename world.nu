@@ -20,7 +20,9 @@ def "world make" [] {
   mut tmp = {type: world, store: (store make (_mk-store-tbl) 1 0)}
   $tmp.store = ($tmp.store | nv make)
 $tmp.nv = $tmp.store.cons
-  $tmp |  | insert 'result' null
+  $tmp =  ($tmp | insert 'result' null)
+  $tmp = ($tmp | insert 'stack' [])
+  $tmp
 }
 
 
@@ -169,4 +171,24 @@ def __list? [] {
   } else {
     $world | __cdr | __list?
   }
+}
+
+
+# cons method to take .result field and construct new cons cell which is placed
+# as new .result in world stream
+
+# cons elements from .result and make new .result
+# returning new world
+def __cons [d: any] {
+  let world = $in
+  $world | world store-updater {|st| $st | _cons $world.result $d }
+}
+
+
+# like __cons except args are reversed. Now d register is in .result field of
+# incoming world stream and a register is the argument
+def __rcons [a: any] {
+  let world = $in
+  $world | world store-updater {|st| $st | _cons $a $world.result }
+
 }
