@@ -21,13 +21,24 @@ def __pop [] {
 # aggregate functions
 
 
-# Pops one item off the top of the stack and cons it onto the front of the existing cons list
+# Creates a new cons cell with the A register being the top of the stack popped
+# off and the D register being the current result.  If previous result was a
+# __null?, then builds a list.
 def __pop-cons [] {
-  let world = $in
-
+  mut world = $in
+  if ($world.stack | is-empty) { runtime-error 'stack-underflow' }
+  mut stk = $world.stack
   let saved = $world.result
-  let wtmp = ($world | __pop)
-  let rtmp = $wtmp.result
-  # print -e $"rtmp: ($rtmp)"
-  $wtmp | update 'result' $saved | __rcons $rtmp
+  let top = ($stk | last 1 | get 0)
+  $stk = ($stk | drop 1)
+  $world.stack = $stk
+  $world = ($world | world store-updater {|st| $st | _cons $top $saved })
+
+  $world
 }
+
+
+
+
+# Peeks at the top of the stack. This must terminate world pipeline.
+alias __peek = get $.stack.0

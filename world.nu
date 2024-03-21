@@ -82,10 +82,10 @@ def "world run" [cl: closure] -> any {
 
 # Given a world on input with a .result field that might or not be null
 # returns new world with .result field set to boolean true or false depending on it
-def __null? [] {
-  let world = $in
-  $world | upsert result ($world | get result | is-empty)
-}
+#def __null? [] {
+#  let world = $in
+#  $world | upsert result ($world | get result | is-empty)
+#}
 
 
 # Checks if the world stream .result field is an atom
@@ -159,6 +159,16 @@ def __cadr [] {
   collect {|w| $w | upsert result ($w.result | _cadr $w.store) }
 }
 
+# Get the third element of the list in the world stream and place it in the .result field
+def __caddr [] {
+  collect {|w| $w | upsert result ($w.result | _caddr $w.store) }
+}
+
+
+# get the forth element from the list
+def __cadddr [] {
+  collect {|w| $w | upsert result ($w.result | _cadddr $w.store) }
+}
 
 # Returns a true .result if the incoming world stream .result is a list
 def __list? [] {
@@ -185,10 +195,24 @@ def __cons [d: any] {
 }
 
 
-# like __cons except args are reversed. Now d register is in .result field of
-# incoming world stream and a register is the argument
+# like __cons except args are reversed.
+# Now d register is in .result field of incoming world stream and A register is the argument
+# The .result field, if a list, will become the cadr of a new list and this
+#functions acts like prepend a value onto a list.
 def __rcons [a: any] {
   let world = $in
   $world | world store-updater {|st| $st | _cons $a $world.result }
 
 }
+
+
+# check if car of .result field of world stream is null
+def __null? [] {
+  __car | __result | is-empty
+}
+
+
+
+# Make a null cons cell for use in list construction
+# or other functions.
+alias __mk-null! = world store-updater {|st| $st | _cons null null }
