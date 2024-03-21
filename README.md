@@ -34,6 +34,7 @@ There are 3 or 4 naming types:
 
 - Query functions, like _null?, _atom?
   * have a single leading underscore '_' and a trailing question mark '?'
+  * and return boolean true/false and not a continuing world stream
 - deconstructors : like _car, _cdr, _cadr etc
   * have a single leading  underscore '_'
   * takes some item on input like a cons cell, and either just a store or a store and environment as params and returns the internal part
@@ -520,3 +521,24 @@ using a reduction of `$args | reduce -f $world {|it, acc| $acc | __mk-atom $it |
 Then we make a new  empty list, then __pop-cons the  top of the stack
 
 3 times and finally __rcons the symbol 'quote'
+
+
+##### TODO fill me out
+
+Consider the following:
+
+```scheme
+(define foo '(bar (1 2 3)))
+```
+
+Its car is 'bar' and its cdr is `((1 2 3))`.
+IOW: the car is yet another list: which you can get out of foo with cadr:
+
+```scheme
+(cadr foo)
+; => (1 2 3)
+```
+
+
+Implications: Must doubly wrap the list we get from the stack pop in another list, to which
+we can prepend either 'quote' or 'begin' onto.

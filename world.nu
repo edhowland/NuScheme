@@ -170,18 +170,25 @@ def __cadddr [] {
   collect {|w| $w | upsert result ($w.result | _cadddr $w.store) }
 }
 
-# Returns a true .result if the incoming world stream .result is a list
-def __list? [] {
-  let world = $in
 
-  if ($world | __atom? | __result) {
-    $world | upsert result false
-  } else if ($world | __car | __null? | __result) {
-    $world | upsert result true
-  } else {
-    $world | __cdr | __list?
-  }
+# Returns the cddr of the list in the result
+def __cddr [] {
+  collect {|w| $w | upsert result ($w.result | _cddr $w.store) }
 }
+
+# Get the cdddr of the cons list in the .result field of the world stream
+def __cdddr [] {
+  collect {|w| $w | upsert result ($w.result | _cdddr $w.store) }
+}
+
+
+# Gets the cddddr of the .result field in the world stream
+def __cddddr [] {
+  collect {|w| $w | upsert result ($w.result | _cddddr $w.store) }
+}
+
+
+
 
 
 # cons method to take .result field and construct new cons cell which is placed
@@ -216,3 +223,17 @@ def __null? [] {
 # Make a null cons cell for use in list construction
 # or other functions.
 alias __mk-null! = world store-updater {|st| $st | _cons null null }
+
+
+# Returns true if .result field in world stream is a list
+def __list? [] {
+  let world = $in
+
+  if ($world | __atom? | __result) {
+false
+  } else if ($world | __null?) {
+    true
+  } else {
+    $world | __cdr | __list?
+  }
+}

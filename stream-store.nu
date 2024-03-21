@@ -193,8 +193,13 @@ def _caaaar [$st] { _car $st | _car $st | _car $st | _car $st }
 
 # the mostly _cdr friends
 
+# Gets the cddr from the cons list given a store
 def _cddr [st] { _cdr $st | _cdr $st }
+
+# gets the cdddr   from the cons list given a store
 def _cdddr [st] { _cdr $st | _cdr $st | _cdr $st }
+
+# gets the cddddr   from the cons list given a store
 def _cddddr [st] { _cdr $st | _cdr $st | _cdr $st | _cdr $st }
 
 

@@ -11,7 +11,7 @@ def __perf-format-list [
   ] -> string {
   let world = $in
 
-  if ($world | __car | __null? | __result) {
+  if ($world | __null?) {
       if $pretty {
       $"\(($acc)\)"
     } else {
