@@ -14,7 +14,7 @@ very inefficient. because of need to test ideas regarding garbage collection.
 First clone this repo, then switch to the 'sps' branch.
 
 
-Upon first arriving in this dir
+Upon first arriving in this directory,
 
 ```bash
 . .rc
@@ -30,11 +30,18 @@ The created world is held in '$env.world' See below for examples of usage.
 
 ##### Function naming strategy
 
-There are 3 or 4 naming types:
+Note: TODO:  These function naming strategies are not yet universally applied.
+Use the strategy when creating a new function.
+Refactor and use rename function when it is safe to do so
+
+There are a variety of function naming cases:
+
+### Inner store and environment functions:
+
 
 - Query functions, like _null?, _atom?
   * have a single leading underscore '_' and a trailing question mark '?'
-  * and return boolean true/false and not a continuing world stream
+  * and return boolean true/false
 - deconstructors : like _car, _cdr, _cadr etc
   * have a single leading  underscore '_'
   * takes some item on input like a cons cell, and either just a store or a store and environment as params and returns the internal part
@@ -42,11 +49,30 @@ There are 3 or 4 naming types:
 - Mutators : like _cons!
   * have a single leading underscore and a trailing bang '!'
   * generally take a store on input and return a new store on output
+  * If working with the environment, probably takes a store and returns a new store
+
+
+### Streaming world functions:
+
 - Streamers : Like __car, __eval and __world-list
-  * Have 2 leading underscores
+  * Start with 2 leading underscores (hereafter called 'dunder'
   * Take a world on input and return a new world on output
   * May update the .result field on output
-  * May only work on the previous .result field on input
+  * May or may not only work on the previous .result field on input
+- Query functions
+  * Start with a dunder
+  * End with trailing '?'
+  * And return boolean true/false
+  * Cannot participate in the middle of a stream pipeline, thus must occur at the end of any pipeline or just $env.world
+- Mutators
+  * Start with a dunder
+  * end with a trailing '!' exclamation mark
+  * May use .result field as input
+  * Returns the (changed) world and may also change the .result field
+- Value inspectors
+  * Start with a dunder
+  * Ends with trailing '=' equal sign
+  * Cannot participate in the middle of a stream, and must therefore occur at the end of a pipeline
 
 Note: If a query streamer like '__atom?' or '__null?' will return a new
 world on output with the result field set to boolean true or false. These also
@@ -60,6 +86,128 @@ functions in the pipeline.
 Note: There are various alias to make life more ergonomic:
 
 - __mk-list : aliased to __world-list
+
+
+## The Archetecture
+
+At this point, we are building a set of primitive functions that will eventually lead
+to a Meta Circular Evaluator of NuScheme. To this end we need to create:
+
+- A Store for cons cells and primitives
+- An Environment which stores values in the store that are looked up with symbols
+
+Because we  are writing this using a Functional Paradigm, we must avoid mutation.
+But, we cannot entirely eliminate all mutation. We need 'set!', 'set-car!' and 'set-cdr!'
+We can, however, move mutable state to the outer level and not pollute
+our pure inner functions.
+
+Thus, we use a World data structure which gets streamed through modifier
+functions that return new Worlds. Which are in turned streamed through more modifiers
+and return yet more new worlds.
+
+Here is an example, first in Scheme, then in low level NuScheme streaming primatives:
+
+```scheme
+; pretty print a constructed cons list of '(11 22 33)
+(display (cons 11 (cons 22 (cons 33 '())))
+; => "(11 22 33)
+```
+
+
+Now here is the same thing in low level NuScheme World streaming primitives:
+
+```nu
+# pretty print the cons list: '(11 22 33
+$env.world | __mk-null! | __rcons 33 | __rcons 22 | __rcons 11 | pp
+# => "(11 22 33)
+```
+
+
+Note that everything is reversed in contrast to the Scheme example.
+But it is not really because of the difference in function composition rules between
+Scheme and Nu itself.
+
+In Scheme and other functional languages, we must use this form of function
+composition:
+
+Let's say we want to compose 'f' with 'g' with 'h' applied to an argument: 'x'.
+
+```scheme
+(f (g (h x)))
+; => value of f composed with g composed with h
+```
+
+But in Nu, the paradigm is the pipeline like in most Shell languages.
+The first argument of any function is (normally) passed in to the function
+coming from some other expression on the left of a pipe symbol: '|'.
+
+Here is the same thing in Nu:
+
+```nu
+$x | h | g | f
+# => f composed with g composed with h
+```
+
+
+For a more complete take on this See: [Function composition in Computer Science: en.wikipedia.org](https://en.wikipedia.org/wiki/Function_composition_(computer_science))
+
+
+It might not seem natural to express list building in this style
+but Nu is mostly a concatenative programming language. and these are only low level
+primitive functions..
+
+Note the function '__rcons' above takes a thing that will be the 'D' register
+from the last thing on the left and another parameter that will become the 'A'
+register in the new cons cell. (There is a corresponding '__cons primitive where
+the registers are reversed in the parameters.)
+
+
+The $env.world is the initial World container upon which we will act upon.
+The '__mk-null!' drops a null value (the list terminator) onto the World.
+Then, we add a new cons cell with the  value 33 onto that null and return a new World.
+This world is passed to another '__rcons' with 22, then '__rcons' 11 for the final
+list. To see it, we pipe it into the terminator 'pp' alias (__format-list --pretty)
+
+It might not seeme like it, but that is __EXACTLY__ what the Scheme code is doing
+as time progresses. It is merely more explicit in Nu.
+
+## The World
+
+The world data structure is just a record with these fields and values:
+
+- type: 'world' To type cast it (maybe used in match expressions)
+- store: '(Atable of cars and cdrs'
+- nv: The HEAD of the Environment cons cell chain
+- result: The most recent value modified and added to the world
+  * Maybe the input to the next streamer function in the pipeline
+- stack: A temporary storage place.
+
+As time goes on, we might also include : 'continuation'
+
+
+There is an initial World stored in $env.world.
+It can be mutated by any of our actions. You can use the'kworld' alias of 'collect --keep-env {|w| $env.world = $w }
+to modified it for inspection or whatever. The functions in 'global.nu' do just that.
+
+
+
+```nu
+# Add a 14 onto the world and save it
+$env.world | __mk-atom 14 | kworld
+$env.world.result
+# => 14
+```
+
+
+Of course, there are more aggregate functions to make life easier:
+
+```nu
+$env.world | __mk-list 11 22 33 | pp
+# => '(11 22 33)
+```
+
+
+
 
 ## The Store
 
